@@ -1,20 +1,66 @@
 <!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
 
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <title>Spoon-Knife</title>
-  <LINK href="styles.css" rel="stylesheet" type="text/css">
-</head>
+    <h2>Registro de Asistencias</h2>
+<button onclick="marcarEntrada()">Marcar Entrada</button>
+<button onclick="marcarSalida()">Marcar Salida</button>
 
-<body>
+<ul id="lista-asistencias"></ul>
 
-<img src="forkit.gif" id="octocat" alt="" />
+<script>
+const token = "TOKEN_SANCTUM_AQUI"; // reemplaza con el token del login
 
-<!-- Feel free to change this text here -->
-<p>
-  Fork me? Fork you, @octocat!
-</p>
+function marcarEntrada() {
+  fetch("http://localhost:8000/api/asistencias", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ user_id: 1 })
+  })
+  .then(res => res.json())
+  .then(data => alert("Entrada registrada: " + data.hora_entrada));
+}
 
-</body>
+function marcarSalida() {
+  const id = prompt("ID de asistencia a actualizar:");
+  fetch(`http://localhost:8000/api/asistencias/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    }
+  })
+  .then(res => res.json())
+  .then(data => alert("Salida registrada: " + data.hora_salida));
+}
+
+function listarAsistencias() {
+  fetch("http://localhost:8000/api/asistencias", {
+    headers: { "Authorization": `Bearer ${token}` }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const lista = document.getElementById("lista-asistencias");
+    lista.innerHTML = "";
+    data.forEach(a => {
+      lista.innerHTML += `<li>Empleado ${a.user_id}: Entrada ${a.hora_entrada}, Salida ${a.hora_salida ?? 'Pendiente'}</li>`;
+    });
+  });
+}
+
+listarAsistencias();
+</script>
+
+  </body>
 </html>
